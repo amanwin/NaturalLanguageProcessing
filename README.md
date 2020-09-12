@@ -226,3 +226,154 @@ Last, you need to know about the re.compile() function. This function stores the
 
 So that was all on quantifiers. In the next section, you’ll learn about anchors.
 
+### Regular Expressions: Anchors and Wildcard
+Next, you will learn about anchors in regular expressions. Anchors are used to specify the start and end of the string.
+
+The two anchors characters: ‘^’ and ‘$’.
+
+The ‘^’ specifies the start of the string. The character followed by the ‘^’ in the pattern should be the first character of the string in order for a string to match the pattern.
+
+Similarly, the ‘$’ specifies the end of the string. The character that precedes the ‘$’ in the pattern should be the last character in the string in order for the string to match the pattern.
+
+Both the anchors can be specified in a single regular expression itself. For example, the regular expression pattern ‘^01*0$’ will match any string that starts and end with zeroes with any number of 1s between them. It will match ‘010’, ‘0110’, ‘01111111110’ and even ‘00’ (‘*’ matches zero or more 1s). But it will not match the string ‘0’ because there is only one zero in this string and in the pattern we have specified that there needs to be two 0s, one at the start and one at the end.
+
+Now, there is one special character in regular expressions that acts as a placeholder and can match any character (literally!) in the given input string. It’s the ‘.’ (dot) character is also called the **wildcard character**.
+
+Till now, you were mentioning the exact character followed by a quantifier in your regular expression patterns. For example, the pattern ‘hur{2,}ay’ matches ‘hurray’, ‘hurrray’, ‘hurrrray’ and so on. Here, we had specified that the letter ‘r’ should be present two or more times. But you don’t always know the letter that you want to repeat. In such situations, you’ll need to use the wildcard instead. 
+
+The wildcard comes handy in many situations. It can be followed by a quantifier which specifies that any character is present a specified number of times.
+
+For example, if you’re asked to write a regex pattern that should match a string that starts with four characters, followed by three 0s and two 1s, followed by any two characters. The valid strings can be abcd00011ft, jkds00011hf, etc. The pattern that satisfies this kind of condition would be ‘.{4}0{3}1{2}.{2}’. You can also use ‘....00011..’ where the dot acts as a placeholder which means anything can sit on the place of the dot. Both are correct regex patterns.
+
+So, you learnt how the ‘.’ character can act as a placeholder for any character and how to use it. 
+
+### Regular Expressions: Characters Sets
+Until now, you were either using the actual letters (such as ab, 23, 78, etc.) or the wildcard character in your regular expression patterns. There was no way of telling that the preceding character is a digit, or an alphabet, or a special character, or a combination of these.
+
+For example, say you want to match phone numbers in a large document. You know that the numbers may contain hyphens, plus symbol etc. (e.g. +91-9930839123) , but it will not have any alphabet. You need to somehow specify that you are looking only for numerics and some other symbols, but avoid alphabets.
+
+To handle such situations, you can use what are called **character sets** in regular expression jargon.
+
+The following segment explains the various types of characters sets available in regular expressions, and how can you use them in different situations.
+
+Character sets provide lot more flexibility than just typing a wildcard or the literal characters. Character sets can be specified with or without a quantifier. When no quantifier succeeds the character set, it matches only one character and the match is successful only if the character in the string is one of the characters present inside the character set. For example, the pattern ‘[a-z]ed’ will match strings such as ‘ted’, ‘bed’, ‘red’ and so on because the first character of each string - ‘t’, ‘b’ and ‘r’ - is present inside the range of the character set.
+
+On the other hand, when we use a character set with a quantifier, such as in this case - ‘[a-z]+ed’, it will match any word that ends with ‘ed’ such as ‘watched’, ‘baked’, ‘jammed’, ‘educated’ and so on. In this way, a character set is similar to a wildcard because it can also be used with or without a quantifier. It’s just that a character set gives you more power and flexibility!
+
+Note that **a quantifier loses its special meaning** when it’s present inside the character set. Inside square brackets, it is treated as any other character. 
+
+You can also mention a whitespace character inside a character set to specify one or more whitespaces inside the string. The pattern [A-z ] can be used to match the full name of a person. It includes a space, so it can match the full name which includes the first name, a space, and the last name of the person.
+
+But what if you want to match every other character other than the one mentioned inside the character set. You can use the caret operator to do this.
+
+The ‘^’ has two use cases. You already know that it can be used outside a character set to specify the start of a string. Here, it is known as an **anchor**.
+
+It’s another use is inside a character set. When used inside a character set, it acts as a **complement operator**, i.e. it specifies that it will match any character other than the ones mentioned inside the character set.
+
+The pattern [0-9] matches any single digit number. On the other hand, the pattern ‘[^0-9]’ matches any single digit character that is not a digit.
+
+### Meta Sequences
+When you work with regular expressions, you’ll find yourself using characters often. You’ll commonly use sets to match only digits, only alphabets, only alphanumeric characters, only whitespaces, etc.
+
+Therefore, there is a shorthand way to write commonly used character sets in regular expressions. These are called meta-sequences.
+
+Those were the commonly used meta-sequences. You can use meta-sequences in two ways:
+1. You can either use them without the square brackets. For example, the pattern ‘\w+’ will match any alphanumeric character.
+2. Or you can them it inside the square brackets. For example, the pattern ‘[\w]+’ is same as ‘\w+’. But when you use meta-sequences inside a square bracket, they’re commonly used along with other meta-sequences. For example, the ‘[\w\s]+’ matches both alphanumeric characters and whitespaces. The square brackets are used to group these two meta-sequences into one.
+ 
+### Greedy versus Non-greedy Search
+When you use a regular expression to match a string, the regex greedily tries to look for the longest pattern possible in the string. For example, when you specify the pattern 'ab{2,5}' to match the string 'abbbbb', it will look for the maximum number of occurrences of 'b' (in this case 5).
+
+This is called a 'greedy approach'. By default, a regular expression is greedy in nature.
+
+There is another approach called the non-greedy approach, also called the lazy approach, where the regex stops looking for the pattern once a particular condition is satisfied.
+
+Let’s look in detail when and how to use the non-greedy technique.
+
+Let’s understand the non-greedy or the lazy approach with an example. Suppose, you have the string ‘3000’. Now, if you use the regular expression ‘30+’, it means that you want to look for a string which starts with ‘3’ and then has one or more '0's followed by it. This pattern will match the entire string, i.e. ‘3000’. This is the greedy way. But if you use the non-greedy technique, it will only match ‘30’ because it still satisfies the pattern ‘30+’ but stops as soon as it matches the given pattern.
+
+It is important to not confuse the greedy approach with matching multiple strings in a large piece of text - these are different use cases. Similarly,  the lazy approach is different from matching only the first match.
+
+For example, take the string ‘One batsman among many batsmen.’. If you run the patterns ‘bat*’ and ‘bat*?’ on this text, the pattern ‘bat*’ will match the substring ‘bat’ in ‘batsman’ and ‘bat’ in ‘batsmen’ while the pattern ‘bat*?’ will match the substring ‘ba’ in batsman and ‘ba’ in ‘batsmen’. The pattern ‘bat*’ means look for the term ‘ba’ followed by zero or more ‘t’s so it greedily looks for as many ‘t’s as possible and the search ends at the substring ‘bat’. On the other hand, the pattern ‘bat*?’ will look for as few ‘t’s as possible. Since ‘*’ indicates zero or more, the lazy approach stops the search at ‘ba’.
+
+To use a pattern in a non-greedy way, you can just put a question mark at the end of any of the following quantifiers that you’ve studied till now:
+* *
+* +
+* ?
+* {m, n}
+* {m,}
+* {, n}
+* {n}
+
+The lazy quantifiers of the above greedy quantifiers are:
+* *?
+* +?
+* ??
+* {m, n}?
+* {m,}?
+* {, n}?
+* {n}?
+
+### Commonly Used RE Functions
+Till now you’ve seen only one function of the 're' module, that is, the 're.search()' function. While it is a very common function used while working with regular expressions in python, it is not the only function that you’d use while working with regular expressions.
+
+You’re going to learn about four more functions in this section one-by-one. Let’s look at the other functions.
+
+The match function will only match if the pattern is present at the very start of the string. On the other hand, the search function will look for the pattern starting from the left of the string and keeps searching until it sees the pattern and then returns the match.
+
+The next function that you’re going to study is the **re.sub()** function. It is used to substitute a substring with another substring of your choice. 
+
+Regular expression patterns can help you find the substring in a given corpus of text that you want to substitute with another string. For example, you might want to replace the American spelling ‘color’ with the British spelling ‘colour’. Similarly, the re.sub() function is very useful in text cleaning. It can be used to replace all the special characters in a given string with a flag string, say, SPCL_CHR, just to represent all the special characters in the text.
+
+The re.sub() function is used to substitute a part of your string using a regex pattern. It is often the case when you want to replace a substring of your string where the substring has a particular pattern that can be matched by the regex engine and then it is replaced by the re.sub() command. 
+
+Note that, this command will replace all the occurrences of the pattern inside the string. For example, take a look at the following command:
+
+![title](img/resub.JPG)
+
+It will change the string to: "My address is XXB, Baker Street"
+
+To summarise, the match and search command return only one match. But you often need to extract all the matches rather than only the first match, and that's when you use the other methods.
+
+Suppose, in a huge corpus of text, you want to extract all the dates, in that case you can use the finditer() function or the findall() function to extract the results. The result of the findall() function is a list of all the matches and the finditer() function is used in a 'for' loop to iterate through each separate match one by one.
+
+### Regular Expressions: Grouping
+Sometimes you need to **extract sub-patterns out of a larger pattern**. This can be done by using **grouping**. Suppose you have textual data with dates in it and you want to extract only the year from the dates. You can use a regular expression pattern with grouping to match dates and then you can extract the component elements such as the day, month or the year from the date.
+
+Grouping is achieved using the parenthesis operators. Let’s understand grouping using an example.
+
+Let’s say the source string is: “Kartik’s birthday is on 15/03/1995”. To extract the date from this string you can use the pattern - “\d{1,2}\/\d{1,2}\/\d{4}”.
+
+Now to extract the year, you can put parentheses around the year part of the pattern. The pattern is: “^\d{1,2}/\d{1,2}/(\d{4})$”.
+
+Grouping is a very useful technique when you want to extract substrings from an entire match.
+
+### Regular Expressions: Use Cases
+Let’s see some examples where regular expressions can be used as a handy tool. These use cases will demonstrate how can you use regular expressions for practical applications.
+
+The following code demonstrates how regex can be used for a file search operation. Say you have a list of folders and filenames called 'items' and you want to extract (or read) only some specific files, say images.
+
+![title](img/code.JPG)
+
+If you run the above code in Python, you’ll get the following result.
+* ['image001.jpg', 'image002.jpg', 'image005.jpg', 'wallpaper.jpg', 'flower.jpg', 'earth.jpg', 'monkey.jpg']
+
+The above code extracts only those documents which have ‘.jpg’ extension. The pattern ‘.*\.jpg$’ is pretty self-explanatory. The important thing here is the use of backslash. If you don’t escape the dot operator with a backslash, you won’t get the results you want. Try to run the code without the escape sequence.
+
+Take a look at another example. This is just an extension to the previous example. In this case, we’re trying to extract documents that start with the prefix ‘image’ and end with the extension ‘.jpg’. Here’s the code:
+
+![title](img/code1.JPG)
+
+You saw how to search for specific file names using regular expressions. Similarly, they can be used to extract features from text such as the ones listed below:
+* Extracting dates
+* Extracting emails
+* Extracting phone numbers, and other patterns.
+
+Along with the applications in NLP, regular expressions are extensively used by software engineers in various applications such as checking if a new password meets the minimum criteria or not, checking if a new username meets the minimum criteria or not, and so on.
+
+Now, let’s end the session with a practical tip. You’ve already gotten to know that there are websites such as this(https://regex101.com/) one which helps you to compile your regular expression because sometimes it can get very hard to write regular expressions. There are various other online tools as well which provide intuitive interfaces to write and test your regex instantly.
+
+### Regular Expressions - Practice Exercises
+Regular expressions happen to be one of those concepts which you'll be able to retain in memory only with frequent practice. There are numerous online tools that teach and let you practice regex, online. Here(https://regexone.com/) is one such tool that you can use to quickly revise all the commnly used regex patterns and concepts.
+
+[Regular Expression Excercises](dataset/BonusExerciseWithSolution.ipynb)
