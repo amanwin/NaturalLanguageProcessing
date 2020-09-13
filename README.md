@@ -377,3 +377,252 @@ Now, let’s end the session with a practical tip. You’ve already gotten to kn
 Regular expressions happen to be one of those concepts which you'll be able to retain in memory only with frequent practice. There are numerous online tools that teach and let you practice regex, online. Here(https://regexone.com/) is one such tool that you can use to quickly revise all the commnly used regex patterns and concepts.
 
 [Regular Expression Excercises](dataset/BonusExerciseWithSolution.ipynb)
+
+## Basic Lexical Processing
+
+### Introduction
+Welcome to the second session of first module. In the last session, you learnt regular expressions and their use cases. That was a very essential skill to learn before applying your hands on any kind of text processing.
+
+In this session you will learn basic lexical processing. You will get to know the various preprocessing steps you need to apply before you can do any kind of text analytics such as apply machine learning on text, building language models, building chatbots, building sentiment analysis systems and so on. These steps are used in almost all applications that work with textual data. We will also build a spam-ham detector system side-by-side on a very unclean corpus of text. Corpus is just a name to refer to textual data in NLP jargon.
+
+Now, you have already built a spam detector while learning about the naive-bayes classifier. Here, you will learn all the preprocessing steps that one needs to do before using a machine learning algorithm on the spam messages dataset. Note that, the preprocessing steps that we teach you here are not limited to building a spam detector. 
+
+Specifically, you will learn:
+* How to preprocess text using techniques such as
+    * Tokenisation
+    * Stop words removal
+    * Stemming
+    * Lemmatization
+* How to build a spam detector using one of the following models:
+    * Bag-of-words model
+    * TF-IDF model
+
+### Word Frequencies and Stop Words
+While working with any kind of data, the first step that you usually do is to explore and understand it better. In order to explore text data, you need to do some basic preprocessing steps. In the next few segments, you will learn some basic preprocessing and exploratory steps applicable to almost all types of textual data.
+
+Now, a text is made of characters, words, sentences and paragraphs. The most basic statistical analysis you can do is to look at the **word frequency distribution**, i.e. visualising the word frequencies of a given text corpus.
+
+It turns out that there is a common pattern you see when you plot word frequencies in a fairly large corpus of text, such as a corpus of news articles, user reviews, Wikipedia articles, etc. Now we will learn what **stopwords** are and why they are lesser relevant than other words.
+
+![title](img/wordfrequency1.png)
+
+![title](img/wordfrequency.png)
+
+To summarise, the Zipf's law (discovered by the linguist-statistician George Zipf) states that the frequency of a word is inversely proportional to the rank of the word, where rank 1 is given to the most frequent word, 2 to the second most frequent and so on. This is also called the **power law distribution**.
+
+The Zipf's law helps us form the basic intuition for **stopwords** - these are the words having the highest frequencies (or lowest ranks) in the text, and are typically of limited 'importance'.
+
+Broadly, there are three kinds of words present in any text corpus:
+* Highly frequent words, called stop words, such as ‘is’, ‘an’, ‘the’, etc.
+* Significant words, which are typically more important to understand the text
+* Rarely occurring words, which are again less important than significant words
+
+Generally speaking, stopwords are removed from the text for two reasons:
+* They provide no useful information, especially in applications such as spam detector or search engine. Therefore, you’re going to remove stopwords from the spam dataset.
+* Since the frequency of words is very high, removing stopwords results in a much smaller data as far as the size of data is concerned. Reduced size results in faster computation on text data. There’s also the advantage of less number of features to deal with if stopwords are removed.
+
+However, there are exceptions when these words should not be removed. In the next module, you’ll learn concepts such as POS (parts of speech) tagging and parsing where stopwords are preserved because they provide meaningful (grammatical) information in those applications. Generally, stopwords are removed unless they prove to be very helpful in your application or analysis.
+
+On the other hand, you’re not going to remove the rarely occurring words because they might provide useful information in spam detection. Also, removing them provides no added efficiency in computation since their frequency is so low.
+
+Now, that we learnt about word frequencies and stopwords, let’s see how to make the frequency chart on your own. Lets see how to make frequency distribution from a text corpus and how to remove stopwords in python using the NLTK library.
+
+[Word Frequencies and Stop Words](dataset/stopwords.ipynb)
+
+We saw how to create word frequency plots and how to remove stop words using the NLTK’s list of stopwords. 
+
+### Tokenisation
+You already know that you’re going to build a spam detector by the end of this module. In the spam detector application, you’re going to use word tokenisation, i.e. break the text into different words, so that each word can be used as a feature to detect whether the given message is a spam or not.
+
+Now, let’s take a look at the spam messages dataset to get a better understanding of how to approach the problem of building a spam detector.
+
+Download the spam dataset from the link given below. It is used in the notebook.
+
+[Spam Messages Data](dataset/SMSSpamCollection.txt)
+
+As you saw, there is a lot of noise in the data. Noise is in the form of non-uniform cases, punctuations, spelling errors. These are exactly the things that make it hard for anyone to work on text data.
+
+There is another thing to think about - how to extract features from the messages so that they could be used to build a classifier. When you create any machine learning model such as a spam detector, you will need to feed in features related to each message that the machine learning algorithm can take in and build the model. But here, in the spam dataset, you only have two columns - one column contains the message and the other contains the label related to the message. And as you know, machine learning works on numeric data, not text. Earlier when you worked with text columns, you either treated them as categorical variables and converted each categorical variable to numeric variable by either assigning numeric values to each category, or you created dummy variables. Here, you can do neither of these, since the message column is unique, it’s not a categorical variable. If you treat it as a category, your model will fail miserably. You can try it as an exercise.
+
+To deal with this problem, you will extract features from the messages. From each message you’ll extract each word by breaking each message into separate words or 'tokens'.
+
+This technique is called **tokenisation** - a technique that’s used to split the text into smaller elements. These elements can be characters, words, sentences, or even paragraphs depending on the application you’re working on.
+
+In the spam detector case, you will break each message into different words, so it’s called **word tokenisation**. Similarly, you have other types of tokenisation techniques such as character tokenisation, sentence tokenisation, etc. Different types of tokenisation are needed in different scenarios.
+
+Now, let’s take a look at what exactly tokenisation is and how to do it in NLTK.
+
+[Tokenisation](dataset/tokenisation.ipynb)
+
+There are multiple ways of doing a particular thing in Python. To tokenise words, you can use the split() method that just splits text on white spaces, by default. This method doesn’t always give good results. You are better off using NLTK’s tokeniser which handles various complexities of text. One of them is that it handles **contractions** such as “can’t”, “hasn’t”, “wouldn’t”, and other contraction words and splits these up although there is no space between them. On the other hand, it is smart enough to not split words such as “o’clock” which is not a contraction word.
+
+In NLTK, you also have different types of tokenisers present that you can use in different applications. The most popular tokenisers are:
+1. **Word tokeniser** splits text into different words.
+2. **Sentence tokeniser** splits text in different sentence.
+3. **Tweet tokeniser** handles emojis and hashtags that you see in social media texts
+4. **Regex tokeniser** lets you build your own custom tokeniser using regex patterns of your choice.
+
+### Bag-of-Words Representation
+You have now learnt two preprocessing steps - tokenisation and removing stopwords. But you still can’t use the list of words that you get after these processing steps to train a machine learning model.
+
+In this section, you’ll learn how to represent text in a format that you can feed into machine learning algorithms. The most common and most popular approach is to create a **bag-of-words representation** of the text data that you have. The central idea is that any given piece of text, i.e., tweets, articles, messages, emails etc., can be “represented” by a list of all the words that occur in it (after removing the stopwords), where the **sequence of occurrence does not matter**. You can visualise it as the “bag” of all “words” that occur in it. For example, consider the messages:
+
+“Gangs of Wasseypur is a great movie”
+
+The bag of words representation for this message would be:
+
+![title](img/bagofwords.JPG)
+
+This way, you can create “bags” for representing each of the messages in your training and test data set. But how do you go from these bags to building a spam classifier?
+
+Let’s say the bags, for most of the spam messages, contain words such as prize, lottery etc., and most of the ham bags don’t. Now, whenever you run into a new message, just look at its “bag-of-words” representation. Does the bag for this message resemble that of messages you already know as spam, or does it not resemble them? Based on the answer to the previous question, you can then classify the message.
+
+Now, the next question is, how do you get a machine to do all of that? Well, turns out that for doing that, you need to represent all the bags in a matrix format, after which you can use ML algorithms such as naive Bayes, logistic regression, SVM etc., to do the final classification.
+
+But how is this matrix representation created? Let’s understand it 
+
+![title](img/bag-of-words.png)
+
+So, that’s how text is represented in the form of matrix. It can then be used to train machine learning models. Each document sits on a separate row and each word of the vocabulary has a its own column. These vocabulary words are also called as **features** of the text.
+
+The bag-of-words representation is also called bag-of-words model but this is not to be confused with a machine learning model. A bag-of-words model is just the matrix that you get from text data.
+
+Another thing to note is that the values inside any cell can be filled in two ways - 1) you can either fill the cell with the frequency of a word (i.e. a cell can have a value of 0 or more), or 2) fill the cell with either 0, in case the word is not present or 1, in case the word is present (binary format).
+
+Both approaches work fine and don’t usually result in a big difference. The frequency approach is slightly more popular and the NLTK library in Python also fills the bag-of-words model with word frequencies rather than binary 0 or 1 values.
+
+Now, let’s see how bag-of-words model is built in Python. Download the Jupyter notebook of the code here, to follow along:
+
+[Bag of Words](dataset/bag+of+words.ipynb)
+
+Download the spam messages dataset that is used to create a bag-of-words model:
+
+[Spam Messages Data](dataset/SMSSpamCollection.txt)
+
+To build a bag-of-words model in Python, you can use the scikit-learn library. As you saw, you get lots of redundant features after building the model. There were features such as ‘get’ and ‘getting’, ‘goes’ and ‘going’, ‘see’ and ‘seeing’ and along with a lot of other duplicate features. They are not exactly duplicates but they’re redundant in the sense that they’re not giving you any extra information about the message. In fact, the words ‘winner’ and ‘win’ are equivalent when your goal is to detect whether a message is spam or not.
+
+Hence, keeping the two separate is actually going to hinder the performance of the machine learning algorithm since it is redundant information. Also, this redundancy is going to increase the number of features due to which the classifier can face the curse of dimensionality. To get rid of this problem, you’re going to learn two more preprocessing techniques - **stemming** and **lemmatization** - in the next section.
+
+### Stemming and Lemmatization
+In the last section, you had seen the problem of redundant tokens. This will result in an inefficient model when you build your spam detector. Stemming makes sure that different variations of a word, say ‘warm’, warmer’, ‘warming’ and ‘warmed,’ are represented by a single token - ‘warm’, because they all represent the same information (represented by the 'stem' of the word).
+
+Another similar preprocessing step (and an alternative to stemming) is lemmatisation.
+
+You’ll now learn about these two techniques that will help you deal with the problem of redundant tokens:
+1. Stemming
+2. Lemmatization
+
+If you noticed, the repeated tokens or features were nothing but a variation or an **inflected form** of the other token. For example, the word ‘seeing’ is an inflection of the word ‘see’. Similarly, the word ‘limited’ is an inflection of the word ‘limit’. The two techniques that you just learnt reduce these inflected words to the original base form. But which is one is a better technique in what situations? Let’s look at them one by one:
+
+![title](img/stemming.JPG)
+
+![title](img/stemming1.JPG)
+
+![title](img/poterstemmer.JPG)
+
+### Stemming
+It is a **rule-based** technique that just chops off the suffix of a word to get its root form, which is called the ‘stem’. For example, if you use a stemmer to stem the words of the string - "The driver is racing in his boss’ car", the words ‘driver’ and ‘racing’ will be converted to their root form by just chopping of the suffixes ‘er’ and ‘ing’. So, ‘driver’ will be converted to ‘driv’ and ‘racing’ will be converted to ‘rac’.
+
+You might think that the root forms (or stems) don’t resemble the root words - ‘drive’ and ‘race’. You don’t have to worry about this because the stemmer will convert all the variants of ‘drive’ and ‘racing’ to those root forms only. So, it will convert ‘drive’, ‘driving’, etc. to ‘driv’, and ‘race’, ‘racer’, etc. to ‘rac’. This gives us satisfactory results in most cases.
+
+There are two popular stemmers:
+* **Porter stemmer**: This was developed in 1980 and works only on English words. You can find all the detailed rules of this stemmer here(http://snowball.tartarus.org/algorithms/porter/stemmer.html).
+* **Snowball stemmer**: This is a more versatile stemmer that not only works on English words but also on words of other languages such as French, German, Italian, Finnish, Russian, and many more languages. You can learn more about this stemmer here(http://snowball.tartarus.org/).
+
+### Lemmatization
+
+![title](img/lemmatization.JPG)
+
+![title](img/lemmatization1.JPG)
+
+This is a more sophisticated technique (and perhaps more 'intelligent') in the sense that it doesn’t just chop off the suffix of a word. Instead, it takes an input word and searches for its base word by going recursively through all the variations of dictionary words. The base word in this case is called the **lemma**. Words such as ‘feet’, ‘drove’, ‘arose’, ‘bought’, etc. can’t be reduced to their correct base form using a stemmer. But a lemmatizer can reduce them to their correct base form. The most popular lemmatizer is the **WordNet lemmatizer** created by a team od researchers at the Princeton university. You can read more about it here(https://wordnet.princeton.edu/).
+
+Nevertheless, you may sometimes find yourself confused in whether to use a stemmer or a lemmatizer in your application. The following points might help you make the decision:
+1. A stemmer is a rule based technique, and hence, it is much faster than the lemmatizer (which searches the dictionary to look for the lemma of a word). On the other hand, a stemmer typically gives less accurate results than a lemmatizer.
+2. A lemmatizer is slower because of the dictionary lookup but gives better results than a stemmer. Now, as a side note, it is important to know that for a lemmatizer to perform accurately, you need to provide the **part-of-speech tag** of the input word (noun, verb, adjective etc.). You’ll see learn POS tagging in the next session - but it would suffice to know that there are often cases when the POS tagger itself is quite inaccurate on your text, and that will worsen the performance of the lemmatiser as well. In short, you may want to consider a stemmer rather than a lemmatiser if you notice that POS tagging is inaccurate.
+
+In general, you can try both and see if its worth using a lemmatizer over a stemmer. If a stemmer is giving you almost same results with increased efficiency than choose a stemmer, otherwise use a lemmatizer.
+
+Now, let’s see how to use a stemmer on a text corpus in Python. You can download the notebook:
+
+[Stemming](dataset/stemming.ipynb)
+
+You learnt to use two types of stemmers - the Porter stemmer and the Snowball stemmer. Snowball stemmer works a little better, but usually, you won’t see much of a difference as both of them are rule based. Snowball has some updated rules and that’s why you saw it stems some words differently. 
+
+Next, let’s see how to lemmatize words in Python. You can download the notebook used by the professor here:
+
+![Lemmatization](dataset/lemmatization.ipynb)
+
+**CLARIFICATION**: You observed that in this case, lemmatization was faster than stemming. That’s due to the fact that we didn’t pass the part-of-speech tag with each word. Because of this, lemmatization happened quickly, but incorrectly. Had we passed the POS tag for each word, lemmatization would have had much more accuracy than stemming, but it would have also taken a lot of time.
+
+You’ll see how to find the POS tag of a word in the second module. Then, you’ll be able to pass each word’s POS tag along with it to lemmatize it correctly.
+
+### Final Bag-of-Words Representation
+You’ve learn quite a few techniques in lexical preprocessing, namely:
+1. Plotting word frequencies and removing stopwords
+2. Tokenisation
+3. Stemming
+4. Lemmatization
+
+Now, let’s create the bag-of-words model, again, but this time, using stemming and lemmatization along with the other preprocessing steps. It will result in reducing the number of features by eliminating redundant features that we had created earlier. But more importantly, will lead to a more efficient representation. You can download the Jupyter notebook:
+
+[Final Bag-of-words representation Notebook](dataset/final+bag+of+words.ipynb)
+
+You saw how stemming and lemmatization performed on the spam dataset. Lemmatization didn’t perform as good as it should have because of two reasons:
+1. Lemmatization expected the POS tag of the word to be passed along with the word. We didn’t pass the POS tag here. You’ll learn how to assign POS tags in the next module.
+2. Lemmatization only works on correctly spelt words. Since there are a lot of misspelt words in the dataset, lemmatization makes no changes to them.
+
+In other words, the comparison of stemming and lemmatization wasn’t actually fair. You can redo this comparison when you learn to tag each word with it’s POS tag. Then, you can automate the process of lemmatization by passing the word along with it’s POS tag. It will be fair to compare the process of stemming and lemmatization only then. The comparison here was just for demonstration purposes.
+
+### TF-IDF Representation
+The bag of words representation, while effective, is a very naive way of representing text. It relies on just the word frequencies of the words of a document. But don’t you think word representation shouldn’t solely rely on the word frequency? There is another way to represent documents in a matrix format which represents a word in a smarter way. It’s called the TF-IDF representation and it is the one that is often preferred by most data scientists.
+
+The term TF stands for term frequency, and the term IDF stands for inverse document frequency. How is this different from bag-of-words representation?
+
+![title](img/tf-idf.png)
+
+The TF-IDF representation, also called the **TF-IDF model**, takes into the account the importance of each word. In the bag-of-words model, each word is assumed to be equally important, which is of course not correct.
+
+The formula to calculate TF-IDF weight of a term in a document is:
+
+![title](img/tf-idf1.JPG)
+
+Note that tf-idf is implemented in different ways in different languages and packages. In the **tf score** representation, some people use only the frequency of the term, i.e. they don’t divide the frequency of the term with the total number of terms. In the **idf score** representation, some people use natural log instead of the log with base 10. Due to this, you may see a different score of the same terms in the same set of documents. But the goal remains the same - assign a weight according to the word's importance. 
+
+Now, let’s see how tf-idf is implemented in Python. Download the Jupyter notebook to follow along:
+
+[TF-IDF Representation Notebook](dataset/tf-idf.ipynb)
+
+### Building a Spam Detector - I
+You’ve learnt all the basic preprocessing steps required for most text analytics applications. In this section, you will learn how to apply these steps to build a spam detector.
+
+Until now, you had learnt how to use the scikit-learn library to train machine learning algorithms. Here, we will demonstrate how to build a spam detector using NLTK library which is, as you might have already realised, is your go-to tool when you’re working with text.
+
+Now, it is not necessary for you to learn how to use NLTK’s machine learning functions. But it’s always nice to have knowledge of more than one tool. More importantly, we’ll demonstrate how to extract features from the raw text without using the scikit-learn package. So take this demonstration as a bonus as you'll learn how to preprocess text and build a classifier using NLTK. Before getting started, download the Jupyter notebook provided below to follow along:
+
+[Spam Detector Notebook](dataset/Spam+Detector.ipynb)
+
+The code till now is simple. You just get the messages and preprocess them using the preprocess function that you’ve already seen. Note that we had eliminated all the words which are less than or equal to two characters long.
+
+Words less than a certain threshold are removed to eliminate special characters such as double exclamation marks, or double dots (the period character). And you won’t lose any information by doing this because there are no words less than two characters other than some stopwords (such as ‘am’, ‘is’, etc.).
+
+You’ve already learnt how to create a bag-of-words model by using the NLTK’s CountVectorizer function. However, we will demonstrate how to build a bag-of-words model without using the NLTK function, that is, building the model manually. The first step towards achieving that goal is to create a vocabulary from the text corpus that you have. In the above notebook, you’re going to learn how to create vocabulary from the dataset.
+
+You learnt how to create vocabulary manually using all the words in the text corpus. In the next section, you’ll look at how to create a bag-of-words model.
+
+### Building a Spam Detector - II
+After creating the vocabulary, the next step is to create the matrix from the features (the bag-of-words model) and then train a machine learning algorithm on it. The algorithm that we’re going to use is the Naive Bayes classifier.
+
+Naive Bayes assumes independence between features. Now, in text classification such as spam detection, only the presence of certain words matter. It doesn't matter if they occur before or after certain words. Hence, Naive Bayes often performs very well on these problems.
+
+We’ve got an excellent accuracy of 98% on the test set. Although this is an excellent accuracy, you could further improve it by trying other models.
+
+Note that, we has created a bag-of-words representation that’s created from scratch without using the CountVectorizer() function. He has used a binary representation instead of using the number of features to represent each word. In this bag-of-words table, ‘1’ means the word is present whereas ‘0’ means the absence of that word in that document. You can do this by setting the ‘binary’ parameter to ‘True’ in the CountVectorizer() function.
+
+You also saw that we used the pickle library to save the model. After creating models, they are saved using the pickle library on the disk. This way, you can even send the models to be used on a different computer or platform.
+
+Let's see what could we have done differently, in order to improve our detector even further.
+
+![title](img/improvements.JPG)
+
+The steps that you just saw should convince you that to get excellent results, you need to take extra care of the nuances of the dataset you’re working on. You need to understand the data inside-out to take these steps because these can’t be generalised to every text classifier or even other spam datasets.
