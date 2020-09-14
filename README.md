@@ -626,3 +626,197 @@ Let's see what could we have done differently, in order to improve our detector 
 ![title](img/improvements.JPG)
 
 The steps that you just saw should convince you that to get excellent results, you need to take extra care of the nuances of the dataset you’re working on. You need to understand the data inside-out to take these steps because these can’t be generalised to every text classifier or even other spam datasets.
+
+### Advanced Lexical Processing
+
+#### Introduction
+In the previous session, you had learnt all the basic lexical processing techniques such as removing stop words, tokenisation, stemming and lemmatization followed by creating bag-of-words and tf-idf models and finally building a spam detector. These preprocessing steps are applicable in almost every text analytics application.
+
+Even after going through all those preprocessing steps that you learnt in the previous session, a lot of noise is still present in the data. For example, **spelling mistakes** which happen by mistake as well as by choice (informal words such as 'lol', 'awsum' etc.). To handle such situations, you’ll learn how to identify and process incorrectly spelt words. Also, you’ll learn how to deal with spelling variations of a word that occur due to different pronunciations (e.g. Bangalore, Bengaluru).
+
+At the end of the session, you’ll also learn how to tokenise text efficiently. You’ve already learnt how to tokenise words, but one problem with the simple tokenisation approach is that it can’t detect terms that are made up of more than one word. Terms such as ‘Hong Kong’, ‘Calvin Klein’, ‘International Institute of Information Technology’, etc. are made of more than one word, whereas they represent the same 'token'. There is no reason why we should have ‘Hong’ and ‘Kong’ as separate tokens. You'll study techniques for building such intelligent tokenizers.
+
+### Canonicalisation
+In the last session, we had learnt some techniques that help you reduce a word to its base form. Specifically, you had learnt the following techniques:
+1. Stemming
+2. Lemmatization
+
+It turns out that the above techniques are a part of what is known as canonicalisation. Simply put, canonicalisation means to reduce a word to its base form. Stemming and lemmatization were just specific instances of it. Stemming tries to reduce a word to its root form. Lemmatization tries to reduce a word to its lemma. The root and the lemma are nothing but the base forms of the inflected words.
+
+There are some cases that can’t be handled either by stemming nor lemmatization. You need another preprocessing method in order to stem or lemmatize the words efficiently.
+
+Suppose, you are working on a text corpus which contains misspelt words. Suppose, the corpus contains two misspelt versions of the word ‘disappearing’ - ‘dissappearng’  and ’disapearing’. After you stem these words, you’ll have two different stems - ‘dissappear’ and ‘dissapear’. You still have the problem of redundant tokens. On the other hand, lemmatization won’t even work on these two words and will return the same words if it is applied because it only works on correct dictionary spelling.
+
+To deal with misspellings, you’ll need to canonicalise it by correcting the spelling of the word. Then you can perform either stemming or lemmatization. You’ll learn the concept of **edit distance** which can then be used to build a spell corrector to rectify the spelling errors in the text that you’re working with.
+
+A similar problem is that of pronunciation which has to do with different dialects present in the same language. For example, the word ‘colour’ is used in British English, while ‘color’ is used in American English. Both are correct spellings, but they have the exact same problem -  ‘colouring’ and ‘coloring’ will result in different stems and lemma.
+
+To deal with different spellings that occur due to different pronunciations, you’ll learn the concept of **phonetic hashing** which will help you canonicalise different versions of the same word to a base word.
+
+In the next section, we'll learn about phonetic hashing and how to use it to canonicalise words that have different spellings due to different pronunciations.
+
+### Phonetic Hashing
+There are certain words which have different pronunciations in different languages. As a result, they end up being spelt differently. Examples of such words include names of people, city names, names of dishes, etc. Take, for example, the capital of India - New Delhi. Delhi is also pronounced as Dilli in Hindi. Hence, it is not surprising to find both variants in an uncleaned text corpus. Similarly, the surname ‘Agrawal’ has various spellings and pronunciations. Performing stemming or lemmatization to these words will not help us as much because the problem of redundant tokens will still be present. Hence, we need to reduce all the variations of a particular word to a common word.
+
+To achieve this, you’ll need to know about what is called as the **phonetic hashing** technique.
+
+Phonetic hashing buckets all the similar phonemes (words with similar sound or pronunciation) into a single bucket and gives all these variations a single hash code. Hence, the word ‘Dilli’ and ‘Delhi’ will have the same code.
+
+![title](img/phonetichashing.JPG)
+
+![title](img/soundex.JPG)
+
+![title](img/soundex1.JPG)
+
+Phonetic hashing is done using the Soundex algorithm. American Soundex is the most popular Soundex algorithm. It buckets British and American spellings of a word to a common code. It doesn't matter which language the input word comes from - as long as the words sound similar, they will get the same hash code.
+
+Now, let’s arrive at the Soundex of the word ‘Mississippi’. To calculate the hash code, you’ll make changes to the same word, in-place, as follows:
+
+1. Phonetic hashing is a four-letter code. The first letter of the code is the first letter of the input word. Hence it is retained as is. The first character of the phonetic hash is ‘M’. Now, we need to make changes to the rest of the letters of the word.
+2. Now, we need to map all the consonant letters (except the first letter). All the vowels are written as is and ‘H’s, ‘Y’s and ‘W’s remain unencoded (unencoded means they are removed from the word). After mapping the consonants, the code becomes MI22I22I11I.
+3. The third step is to remove all the vowels. ‘I’ is the only vowel. After removing all the ‘I’s, we get the code M222211. Now, you would need to merge all the consecutive duplicate numbers into a single unique number. All the ‘2’s are merged into a single ‘2’. Similarly, all the ‘1’s are merged into a single ‘1’. The code that we get is M21.
+4. The fourth step is to force the code to make it a four-letter code. You either need to pad it with zeroes in case it is less than four characters in length. Or you need to truncate it from the right side in case it is more than four characters in length. Since the code is less than four characters in length, you’ll pad it with one ‘0’ at the end. The final code is M210.
+
+Since the process is fixed, we can simply create a function to create a Soundex code of any given input word. Learn how to make such function  with a Jupyter notebook. Download the Jupyter notebook from the link given below to follow along:
+
+NOTE: Please follow the notebook provided below, there is a slight change int he function to make it perform correctly.
+
+[Soundex Notebook](dataset/soundex.ipynb)
+
+Up next, you’ll learn how to identify and measure the 'distance between words' using the concept of **edit distance** which will help you build your own spell corrector.
+
+### Edit Distance
+In the last section, you saw how to deal with different pronunciations of a particular word. Next, you’ll learn how to deal with misspellings. As already discussed, misspellings need to be corrected in order to stem or lemmatize efficiently. The problem of misspellings is so common these days, especially in text data from social media, that it makes working with text extremely difficult, if not dealt with.
+
+Now, to handle misspellings, you’ll learn how to make a **spell corrector**. All the misspelt words will be corrected to the correct spelling. In other words, all the misspelt words will be canonicalised to the base form, which is the correct spelling of that word. But to really understand how a spell corrector works, you’ll need to understand the concept of **edit distance**.
+
+An edit distance is a distance between two strings which is a non-negative integer number.
+
+![title](img/editdistance.JPG)
+
+As you just learnt, an edit distance is the number of edits that are needed to convert a source string to a target string.
+Now, the question that comes to the mind is - what’s an edit? An edit operation can be one of the following:
+1. **Insertion** of a letter in the source string. To convert ‘color’ to ‘colour’, you need to insert the letter ‘u’ in the source string.
+2. **Deletion** of a letter from the source string. To convert ‘Matt’ to ‘Mat’, you need to delete one of the ‘t’s from the source string.
+3. **Substitution** of a letter in the source string. To convert ‘Iran’ to ‘Iraq’, you need to substitute ‘n’ with ‘q’
+
+Now, it is easy to tell the edit distance between two relatively small strings. You can probably tell the number of edits that are needed in the string ‘applaud’ to ‘apple’. Did you guess how many? You need three edits. Substitution of ‘a’ to ‘e’ in a single edit. Then you require two deletions - deletion of the letters ‘u’ and ‘d’. Hence, you need a total of three edit operations in this case. But, this was a fairly simple example. It would become difficult when the two strings are relatively large and complex. Try calculating the edit distance between ‘deleterious’ and ‘deletion’. It’s not obvious in the first look. Hence, we need to learn how to calculate edit distance between any two given strings, however long and complex they might be.
+
+More importantly, we need an algorithm to compute the edit distance between two words. 
+
+![title](img/editdistance1.JPG)
+
+So, that’s how the Levenshtein edit distance is calculated.
+
+Since the process of calculating edit distance is fixed, and now that you know it, you can write an algorithm to automate this computation. Let's see how to write the algorithm in the following lecture. Download the Jupyter notebook given below to follow along.
+
+[Edit Distance notebook](dataset/edit+distance.ipynb)
+
+So that’s how you compute the edit distance between two given strings. You also saw another variation of the edit distance - the Damerau–Levenshtein distance. The Damerau–Levenshtein distance, apart from allowing the three edit operations, also allows the swap (transposition) operation between two adjacent characters which costs only one edit instead of two.
+
+This edit operation was introduced because swapping is a very common mistake. For example, while typing, people mistype ‘relief’ to ‘releif’. This has to be accounted as a single mistake (one edit distance), not two.
+
+But how to make a spell corrector which was the main objective in the first place? You’ll learn to do that in the next section.
+
+### Spell Corrector - I
+A spell corrector is a widely used application that you would see almost everywhere on the internet. If you have the autocorrect feature enabled on your phone, the incorrect spellings get replaced by the correct ones. Another example is when you use a search engine such as Google to search anything and mistype a word, it suggests the correct word.
+
+Spell correction is an important part of lexical processing. In many applications, spell correction forms an initial preprocessing layer. For example, if you are making a chatbot to book flights, and you get the user request 'Book a flight from Mumbai to Bangalor', you want to gracefully handle that spelling error and return relevant results.
+
+Now, people have made various attempts to make spell correctors using different techniques. Some are very basic and elementary which use lexical processing, while others are state-of-the-art performers which use deep learning architectures.
+
+Here, you’re going to learn the Norvig’s spell corrector which gives you really good performance and result, given its simplicity.
+
+You can download the Jupyter notebook and the seed document 
+
+[Spell Corrector Notebook](dataset/spell-corrector.ipynb)
+
+[Seed Document](dataset/big.txt)
+
+Now, let’s look at what each function does. The function words() is pretty straightforward. It tokenises any document that’s passed to it. You have already learnt how to tokenise words using NLTK library. You could also use regular expressions to tokenise words. The ‘Counter’ class, which you just saw in the Jupyter notebook, creates a frequency distribution of the words present in the seed document. Each word is stored along with its count in a Python dictionary format. You could also use the NLTK’s FreqDist() function to achieve the same results. It’s just that there are more than one way to do things in Python. And it’s always nice to know more than one way to perform the same task.
+
+Now, the seed document ‘big.txt’ is nothing but a book. It’s the book ‘The Adventures of Sherlock Holmes’ present in text format at project Gutenberg’s website. A seed document acts like a lookup dictionary for a spell corrector since it contains the correct spellings of each word.
+
+Now, you might ask why not just use a dictionary instead of a book? You’ll get to know why we’re using a book a little later. Now, in the next part, we will use edit distance in the spell corrector.
+
+You just saw two functions. The edits_one() function and the edits_two() function. The edits_one() function creates all the possible words that are one edit distance away from the input word. Most of the words that this function creates are garbage, i.e. they are not valid English words. For example, if you pass the word ‘laern’ (misspelling of the word ‘learn’) to edits_one(), it will create a list where the word ‘lgern’ will be present since it is an edit away from the word ‘laern’. But it’s not an English word. Only a subset of the words will be actual English words.
+
+Similarly, the edits_two() function creates a list of all the possible words that are two edits away from the input word. Most of these words will also be garbage.
+
+The **known()** function filters out the valid English word from a list of given words. It uses the frequency distribution as a dictionary that was created using the seed document. If the words created using edits_one() and edits_two() are not in the dictionary, they’re discarded.
+
+Now, the function **possible_corrections()** returns a list of all the potential words that can be the correct alternative spelling. For example, let’s say the user has typed the word ‘wut’ which is wrong. There are multiple words that could be the correct spelling of this word such as ‘cut’, ‘but’, ‘gut’, etc. This functions will return all these words for the given incorrect word ‘wut’. But, how does this function find all these word suggestions exactly? It works as follows:
+1. It first checks if the word is correct or not, i.e. if the word typed by the user is a present in the dictionary or not. If the word is present, it returns no spelling suggestions since it is already a correct dictionary word.
+2. If the user types a word which is not a dictionary word, then it creates a list of all the **known** words that are **one edit** distance away. If there are no valid words in the list created by edits_one() only then this function fetches a list of all known words that are **two edits** away from the input word
+3. If there are no known words that are two edits away, then the function returns the  original input word. This means that there are no alternatives that the spell corrector could find. Hence, it simply returns the original word.
+
+Finally, there is the **prob()** function. The function returns the probability of an input word. This is exactly why you need a seed document instead of a dictionary. A dictionary only contains a list of all correct English words. But, a seed document not only contains all the correct words but it could also be used to create a frequency distribution of all these words. This frequency will be taken into consideration when there are more than one possibly correct words for a given misspelled word. Let’s say the user has input the word ‘wut’. The correct alternative to this word could be one of these words - ‘cut’, ‘but’ and ‘gut’, etc. The possible_corrections() function will return all these words. But the prob() function will create a probability associated with each of these suggestions and return the one with highest probability. Suppose, if a word ‘but’ is present 2000 times out of a total of million words in the seed document, then it’s probability would be 2000/1000000, i.e. 0.002.
+
+### Spell Corrector - II
+In this section, you’ll continue to build the rest of the spell corrector. Till now, you’ve seen how to build the functions edits_one(), edits_two(), known(), possible_corrections() and prob(). Let’s understand all these functions in more depth by taking a look at their outputs.
+
+Now, we’re almost done building the spell corrector. You just need to put all the pieces of the code together and wrap them up in a new function that uses all the functions created till now.
+
+There you go! You have successfully created a pretty good spelling corrector. You can now use it to correct the spelling of any given text corpus such as the spam dataset where there were a lot of misspellings.
+
+To use the spell corrector that you just finished building, you could import the spell corrector using the following command:
+
+![title](img/spellchecker.JPG)
+
+But make sure that you place the following file in your working directory to make sure that you don’t get an error while importing the function.
+
+[Spell Corrector](dataset/spell_corrector.py)
+
+In the next section, you’ll learn about a metric called the pointwise mutual information (PMI) which will help you tokenise terms that comprise of more than a word.
+
+### Pointwise Mutual Information - I
+Till now you have learnt about reducing words to their base form. But there is another common scenario that you’ll encounter while working with text. Suppose there is an article titled “Higher Technical Education in India” which talks about the state of Indian education system in engineering space. Let’s say, it contains names of various Indian colleges such as ‘International Institute of Information Technology, Bangalore’, ‘Indian Institute of Technology, Mumbai’, ‘National Institute of Technology, Kurukshetra’ and many other colleges. Now, when you tokenise this document, all these college names will be broken into individual words such as ‘Indian’, ‘Institute’, ‘International’, ‘National’, ‘Technology’ and so on. But you don’t want this. You want an entire college name to be represented by one token.
+
+To solve this issue, you could either replace these college names by a single term. So, ‘International Institute of Information Technology, Bangalore’ could be replaced by ‘IIITB’. But this seems like a really manual process. To replace words in such manner, you would need to read the entire corpus and look for such terms.
+
+Turns out that there is a metric called the **pointwise mutual information**, also called the **PMI**. You can calculate the PMI score of each of these terms. PMI score of terms such as ‘International Institute of Information Technology, Bangalore’ will be much higher than other terms. If the PMI score is more than a certain threshold then you can choose to replace these terms with a single term such as ‘International_Institute_of_Information_Technology_Bangalore’.
+
+But what is PMI and how is it calculated?
+
+You saw how to calculate PMI of a term that has two words. The PMI score for such term is:
+
+![title](img/pmi.JPG)
+
+![title](img/occurencecontext.JPG)
+
+![title](img/occurencecontext1.JPG)
+
+![title](img/pmi_score.png)
+
+Till now, to calculate the probability of your word you chose words as the occurrence context. But you could also choose a sentence or even a paragraph as the occurrence context.
+
+If we choose **words as the occurrence context**, then the probability of a word is:
+
+P(w) = Number of times given word ‘w’ appears in the text corpus/ Total number of words in the corpus
+
+Similarly, if a **sentence is the occurrence context**, then the probability of a word is given by:
+
+P(w) = Number of sentences that contain ‘w’ / Total number of sentences in the corpus
+
+Similarly, you could calculate the probability of a word with paragraphs as occurrence context.
+
+Once you have the probabilities, you can simply plug in the values and have the PMI score.
+
+### Pointwise Mutual Information - II
+Now, calculating PMI score for a two-word term was pretty straightforward. But when you try to calculate the PMI of a three-word term such as “Indian Institute of Technology”, you will have to calculate P(Indian Institute Technology). To calculate such probability, you need to apply the chain rule of probability.
+
+![title](img/n-gram.JPG)
+
+![title](img/n-gram1.JPG)
+
+In practical settings, calculating PMI for terms whose length is more than two is still very costly for any relatively large corpus of text. You can either go for calculating it only for a two-word term or choose to skip it if you know that there are only a few occurrences of such terms.
+
+![title](img/pmi_values.JPG)
+
+After calculating the PMI score, you can compare it with a cutoff value and see if PMI is larger or smaller than the cutoff value. A good cutoff value is zero. Terms with PMI larger than zero are valid terms, i.e. they don’t need to be tokenised into different words. You can replace these terms with a single-word term that has an underscore present between different words of the term. For example, the term ‘New Delhi’ has a PMI greater than zero. It can be replaced with ‘New_Delhi’. This way, it won’t be tokenised while using the NLTK tokeniser.
+
+
+
+
+
+ 
